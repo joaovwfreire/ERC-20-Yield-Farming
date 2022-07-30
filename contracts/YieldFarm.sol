@@ -12,9 +12,8 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
         uint256 startTime;
     }
 
-    address owner;
-    IERC20 polarisToken;
-    uint256 apy;
+    IERC20 public polarisToken;
+    uint256 public apy;
 
     mapping(address=> Investment) investments;
 
@@ -22,9 +21,9 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
     event Unstake(address user, uint256 amount);
     event ApyChanged(uint256 time, uint256 newValue);
 
-    constructor(address _polarisTokenAddress, uint256 _initialApy){
+    constructor(IERC20 _polarisTokenAddress, uint256 _initialApy){
         polarisToken = _polarisTokenAddress;
-        apy = initialApy;
+        apy = _initialApy;
     }
 
     function stake(address user, uint256 amount) external nonReentrant{
@@ -33,24 +32,24 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
 
         polarisToken.transferFrom(msg.sender, address(this), amount);
 
-        thisUserInvestment[msg.sender].amount = amount;
-        thisUserInvestment[msg.sender].time = block.timestamp;
+        investments[msg.sender].amount = amount;
+        investments[msg.sender].startTime = block.timestamp;
 
         
 
     }
 
-    function unstake(address user, uint256 amount) external nonReentrant{
+    function unstake(address user) external nonReentrant{
         require(msg.sender == user, "Cannot stake for somebody else");
         
-        uint finalAmount = thisUserInvestment[msg.sender].amount + calculateEarnings;
+        uint finalAmount = investments[msg.sender].amount + calculateEarnings(user);
     
 
         polarisToken.transfer(msg.sender, finalAmount);
 
         
-        thisUserInvestment[msg.sender].time = block.timestamp;
-        thisUserInvestment[msg.sender].amount = 0;
+        investments[msg.sender].startTime = block.timestamp;
+        investments[msg.sender].amount = 0;
 
         
         
@@ -62,13 +61,14 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
         apy = newApy;
     }
 
-    function changeOwner() external onlyOwner{
-
-    }
-
-	function calculateEarnings() internal returns(uint256) {
 
 
+
+	function calculateEarnings(address user) internal view returns(uint256) {
+        // earnings = apy * user investment * year fraction * 10^4 to handle some imprecisions
+         uint256 earnings = ((apy/100) * investments[user].amount * (block.timestamp - investments[user].startTime)/ (365 days)) * 10000; 
+
+        return earnings;
 
     }
     

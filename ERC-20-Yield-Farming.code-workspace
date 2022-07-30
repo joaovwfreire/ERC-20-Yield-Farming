@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "..\\hardhat\\node_modules"
+		},
+		{
+			"path": "..\\hardhat\\scripts"
+		},
+		{
+			"path": "..\\hardhat\\test"
+		},
+		{
+			"path": "..\\hardhat\\typechain-types"
+		},
+		{
+			"path": "..\\hardhat\\artifacts"
+		},
+		{
+			"path": "..\\hardhat\\cache"
+		},
+		{
+			"path": "..\\hardhat\\contracts"
+		}
+	],
+	"settings": {}
+}
