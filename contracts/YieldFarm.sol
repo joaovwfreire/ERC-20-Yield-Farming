@@ -15,7 +15,7 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
     IERC20 public polarisToken;
     uint256 public apy;
 
-    mapping(address=> Investment) investments;
+    mapping(address => Investment) public investments;
 
     event Stake(address user, uint256 amount);
     event Unstake(address user, uint256 amount);
@@ -26,16 +26,16 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
         apy = _initialApy;
     }
 
-    function stake(address user, uint256 amount) external nonReentrant{
-        require(msg.sender == user, "Cannot stake for somebody else");
-        require(polarisToken.balanceOf(msg.sender) > amount, "Cant stake <= to balance");
+    function stake(address user, uint256 amount) external nonReentrant returns(bool){
+        // maybe works without this
+        require(polarisToken.balanceOf(user) > amount, "Cant stake <= to balance");
 
-        polarisToken.transferFrom(msg.sender, address(this), amount);
+        investments[user].amount = amount;
+        investments[user].startTime = block.timestamp;
 
-        investments[msg.sender].amount = amount;
-        investments[msg.sender].startTime = block.timestamp;
+        return true;
 
-        
+        emit Stake(user, amount);
 
     }
 
@@ -51,7 +51,7 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
         investments[msg.sender].startTime = block.timestamp;
         investments[msg.sender].amount = 0;
 
-        
+        emit Unstake(user, finalAmount);
         
     }
 
