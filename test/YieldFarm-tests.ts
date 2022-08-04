@@ -69,13 +69,42 @@ describe("Polaris Yield Farm", function () {
 
         
         it("Should send the yield contract a couple of tokens", async function () {
-            await polarisTokenContract.connect(user1).transfer(polarisYieldFarmingDeployed.address, 500000);
-            
+            let tx = await polarisTokenContract.connect(user1).transfer(polarisYieldFarmingDeployed.address, 500000);
+            let receipt = await tx.wait();
+        
+            console.log(receipt.events);
+            await expect(await polarisTokenContract.balanceOf(polarisYieldFarmingDeployed.address)).to.equal(500000);
+
+            console.log(await polarisYieldFarmingDeployed.investments(user1.address));
+            await expect(await polarisYieldFarmingDeployed.investments(user1.address)).to.equal(500000);
+        
+        });
+    
+  
+       
+     
+      });
+
+      describe("Unstake", function () {
+
+        
+        
+
+        it("Should return the original amount invested plus it's earnings", async function () {
+          
+          await ethers.provider.send("evm_increaseTime", [3600 * 23 + 3590])
+
+            const tx = await polarisYieldFarmingDeployed.connect(user1).unstake(user1.address);
+            const receipt = await tx.wait();
+
+            console.log(receipt.events[1]);
            
             
             await expect(await polarisTokenContract.balanceOf(polarisYieldFarmingDeployed.address)).to.equal(500000);
         
         });
+
+        it("Should change the user's investment size to ")
     
   
        
