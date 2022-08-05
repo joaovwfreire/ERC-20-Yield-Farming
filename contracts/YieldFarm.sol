@@ -30,12 +30,14 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
         // maybe works without this
         require(polarisToken.balanceOf(user) > amount, "Cant stake <= to balance");
 
-        investments[user].amount = amount;
+        investments[user].amount += amount;
         investments[user].startTime = block.timestamp;
 
-        return true;
+       
 
         emit Stake(user, amount);
+
+         return true;
 
     }
 

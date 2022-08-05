@@ -45,6 +45,8 @@ describe("Polaris Yield Farm", function () {
 
 
     });
+
+    
 });
     
 
@@ -62,6 +64,13 @@ describe("Polaris Yield Farm", function () {
         await expect(await polarisYieldFarmingDeployed.apy()).to.equal(10);
       });
 
+      it("Should update the yield farm contract address that's proxied by the token contract", async function () {
+        await polarisTokenContract.connect(user1).updateYieldProxy(polarisYieldFarmingDeployed.address);
+
+        await expect(await polarisTokenContract.yieldProxy()).to.equal(polarisYieldFarmingDeployed.address);
+        
+      })
+
    
     });
 
@@ -72,11 +81,12 @@ describe("Polaris Yield Farm", function () {
             let tx = await polarisTokenContract.connect(user1).transfer(polarisYieldFarmingDeployed.address, 500000);
             let receipt = await tx.wait();
         
-            console.log(receipt.events);
+            //console.log(receipt.events);
             await expect(await polarisTokenContract.balanceOf(polarisYieldFarmingDeployed.address)).to.equal(500000);
 
-            console.log(await polarisYieldFarmingDeployed.investments(user1.address));
-            await expect(await polarisYieldFarmingDeployed.investments(user1.address)).to.equal(500000);
+            let nonHexValue = 500000;
+           console.log(await polarisYieldFarmingDeployed.investments(user1.address))
+            await expect(await polarisYieldFarmingDeployed.investments(user1.address)).to.equal([{"_hex": "0x0" + nonHexValue.toString(16), "_isBigNumber": true },{"_hex": "0x" + (await (await ethers.provider.getBlock("latest")).timestamp).toString(16), "_isBigNumber": true }]);
         
         });
     
@@ -97,11 +107,11 @@ describe("Polaris Yield Farm", function () {
             const tx = await polarisYieldFarmingDeployed.connect(user1).unstake(user1.address);
             const receipt = await tx.wait();
 
-            console.log(receipt.events[1]);
+            //console.log(receipt.events[1]);
            
             
-            await expect(await polarisTokenContract.balanceOf(polarisYieldFarmingDeployed.address)).to.equal(500000);
-        
+            await expect(await polarisTokenContract.balanceOf(polarisYieldFarmingDeployed.address)).to.equal(0);
+            await expect(await polarisTokenContract.balanceOf(user1.address)).to.equal(50000);
         });
 
         it("Should change the user's investment size to ")
