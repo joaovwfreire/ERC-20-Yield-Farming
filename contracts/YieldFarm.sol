@@ -41,7 +41,7 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
 
     }
 
-    function unstake(address user) external nonReentrant{
+    function unstake(address user) external nonReentrant returns(bool){
         require(msg.sender == user, "Cannot stake for somebody else");
         
         uint finalAmount = investments[msg.sender].amount + calculateEarnings(user);
@@ -54,7 +54,7 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
         investments[msg.sender].amount = 0;
 
         emit Unstake(user, finalAmount);
-        
+        return true;
     }
 
     function changeApy(uint256 newApy) external onlyOwner{
@@ -68,7 +68,15 @@ contract polarisYieldFarming is Ownable, ReentrancyGuard{
 
 	function calculateEarnings(address user) internal view returns(uint256) {
         // earnings = apy * user investment * year fraction * 10^4 to handle some imprecisions
-         uint256 earnings = ((apy/100) * investments[user].amount * (block.timestamp - investments[user].startTime)/ (365 days)) * 10000; 
+         uint256 earnings = (apy * investments[user].amount * (block.timestamp - investments[user].startTime) / ((365 days) * 100)) ; 
+
+        return earnings;
+
+    }
+
+    // testing purposes
+    function _calculateEarnings(address user) public view returns(uint256) {
+        uint256 earnings = (apy * investments[user].amount * (block.timestamp - investments[user].startTime) / ((365 days) * 100)) ; 
 
         return earnings;
 
